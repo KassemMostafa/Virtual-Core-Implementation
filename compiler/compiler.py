@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 
-asmList = [8,2,3,2,"AND",1,"BEQ"]
+asmList = [0,0,0,0,"ANDa",0,"BEQz"]
 
 def ReadImmédiateValue(asmList0, asmList5):
     ret = "00000000"
@@ -61,7 +61,9 @@ def ReadOperationCode(asmList4):
     elif asmList4 == "LSH" :
         ret = "1001"
     elif asmList4 == "RSH" :
-        ret = "1010" 
+        ret = "1010"
+    else :
+        ret = "0000" 
     print("5 : " + ret) 
     return ret
 
@@ -86,6 +88,8 @@ def ReadBranchConditionCode(asmList6):
         ret = "1101"  
     elif asmList6 == "BG" :
         ret = "1110"
+    else :
+        ret = "0000"
     print("7 : " + ret)
     return ret
 
