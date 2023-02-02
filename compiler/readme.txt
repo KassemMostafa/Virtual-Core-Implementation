@@ -1,6 +1,6 @@
 ####### Objectif #######
 
-Lire des instructions asm et les transformer sur 32 bits (en binéaire):
+Lire des instructions asm et les transformer sur 32 bits (ouvrir le fichier en mode binéaire wb):
 
 exemple : mov eax,3
 
@@ -26,3 +26,4 @@ exemple : mov eax,ebx
 24    Immediate value flag (0 = non)
 25-27 always set to 0 (=0 pour remplir les 32 bits)
 28-31 Branch condition code (voir 2.5.2)
+
