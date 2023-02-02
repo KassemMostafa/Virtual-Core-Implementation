@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 asmList = [8,2,3,2,"AND",1,"BEQ"]
 
 def ReadImmédiateValue(asmList0, asmList5):
