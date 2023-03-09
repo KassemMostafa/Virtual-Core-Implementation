@@ -120,7 +120,7 @@ def ReadDestinationRegister(asmList1):
 
 def ReadSecondOperand(asmList2, asmList5):
     ret = "0000"
-    if asmList5:
+    if asmList5 == 0 :
         ret = str(bin(asmList2))[2:]
     ret = "0000" + ret
     a = len(ret)-4
@@ -202,5 +202,5 @@ def ReadAll(asmList):
     print(len(ret))
     return ret
 asmList = ReadCode()
-#ReadAll(asmList)
+ReadAll(asmList)
 
