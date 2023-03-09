@@ -69,20 +69,37 @@ def ReadCode():
         if (asmList[4] == 0):
             opcode = line.split(" ")[0]
             offset = line.split(" ")[1].replace('r', '').replace(',', '')
-            asmList = [offset, 0, 0, 0, 0, 1, 0, opcode]
+            asmList = [offset, 0, 0, 0, 0, 1, opcode]
         else:
             operands = line.split(" ")[1:]
             operands = DecodeOperand(operands)
             asmList = ImmediateValueDetection(operands,asmList)
             asmList[6] = 0
             
-            
+        asmList[0] = int(asmList[0])
+        asmList[1] = int(asmList[1])
+        asmList[2] = int(asmList[2])
+        asmList[3] = int(asmList[3])
+        asmList[5] = int(asmList[5])
         print(asmList)
     f.close()
     return asmList
 
 # asmList = [0,0,0,0,"ANDa",0,"BEQz"]
 
+
+
+
+
+
+
+
+
+
+
+
+
+##LOICK
 def ReadImmédiateValue(asmList0, asmList5):
     ret = "00000000"
     if asmList5 :
@@ -185,5 +202,5 @@ def ReadAll(asmList):
     print(len(ret))
     return ret
 asmList = ReadCode()
-ReadAll(asmList)
+#ReadAll(asmList)
 
