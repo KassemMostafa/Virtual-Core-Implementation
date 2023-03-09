@@ -79,9 +79,9 @@ def ReadCode():
             
         print(asmList)
     f.close()
-    return 0
+    return asmList
 
-asmList = [0,0,0,0,"ANDa",0,"BEQz"]
+# asmList = [0,0,0,0,"ANDa",0,"BEQz"]
 
 def ReadImmédiateValue(asmList0, asmList5):
     ret = "00000000"
@@ -177,12 +177,13 @@ def ReadAll(asmList):
     ret = ReadImmédiateValue(asmList[0], asmList[5]) + ReadDestinationRegister(asmList[1]) + ReadSecondOperand(asmList[2],asmList[5]) + ReadFirstOperand(asmList[3]) + ReadOperationCode(asmList[4]) + ReadImmédiateValueFlag(asmList[5]) + ReadAlways0 + ReadBranchConditionCode(asmList[6]) 
     ret = int(ret, 2)
     ret = ret.to_bytes(4, 'big')
+    print(ret)
     with open("binary.bin", "wb") as binary_file:
         binary_file.write(ret)
         binary_file.close()
     print(ret)
     print(len(ret))
     return ret
-
+asmList = ReadCode()
 ReadAll(asmList)
 
