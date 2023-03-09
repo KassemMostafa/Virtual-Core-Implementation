@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import struct
+
 
 def DecodeOperand(operands):
     
@@ -190,16 +192,40 @@ def ReadBranchConditionCode(asmList6):
     print("7 : " + ret)
     return ret
 
+def ReadBCC(asmList1):
+    ret = str(bin(asmList1))[2:]
+    print( "ret21 = " + ret)
+    print(ret[1:])
+    ret = ret[1:]
+    ret = "0" * 27 + ret
+    a = len(ret) - 27
+    print( "ret2 = " + ret)
+
+    ret = ret[a:]
+    print( "ret2 = " + ret)
+
+    if asmList1 < 0:
+        ret = ret + "1"
+    else:
+        ret = ret + "0"
+    print("2 : " + ret)
+    return ret
+
 def ReadAll(asmList):
-    ret = ReadImmédiateValue(asmList[0], asmList[5]) + ReadDestinationRegister(asmList[1]) + ReadSecondOperand(asmList[2],asmList[5]) + ReadFirstOperand(asmList[3]) + ReadOperationCode(asmList[4]) + ReadImmédiateValueFlag(asmList[5]) + ReadAlways0 + ReadBranchConditionCode(asmList[6]) 
+    if asmList[6] == 0 :
+        ret = ReadImmédiateValue(asmList[0], asmList[5]) + ReadDestinationRegister(asmList[1]) + ReadSecondOperand(asmList[2],asmList[5]) + ReadFirstOperand(asmList[3]) + ReadOperationCode(asmList[4]) + ReadImmédiateValueFlag(asmList[5]) + ReadAlways0 + ReadBranchConditionCode(asmList[6])
+    else :
+        ret = ReadBCC(asmList[0]) + ReadBranchConditionCode(asmList[6])
+    ret = str("".join(reversed(ret)))
+    print("ret bfore bin" + ret)
     ret = int(ret, 2)
-    ret = ret.to_bytes(4, 'big')
     print(ret)
     with open("binary.bin", "wb") as binary_file:
-        binary_file.write(ret)
+
+        binary_file.write(struct.pack('>I',ret))
         binary_file.close()
+
     print(ret)
-    print(len(ret))
     return ret
 asmList = ReadCode()
 ReadAll(asmList)
