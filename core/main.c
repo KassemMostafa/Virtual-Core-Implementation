@@ -14,7 +14,9 @@ struct instruction{
 };
 
 
-char* fetch(PC) //BCC géré dans fetch with PC
+char* fetch(PC) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
+//Info à trouver/calculer dans fetch => BCC, offset, bloc d'instruction (sans decoder) et PC
+
 {
     char *buffer;
     FILE *ptr;
@@ -35,7 +37,7 @@ char* fetch(PC) //BCC géré dans fetch with PC
     return buffer;
 }
 
-void decode(char *buffer)
+void decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
     struct instruction info;
     // int line = 0x00184800;
