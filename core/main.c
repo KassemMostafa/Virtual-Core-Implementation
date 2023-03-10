@@ -14,7 +14,7 @@ struct instruction{
 };
 
 
-char* fetch(PC) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
+char* fetch(int PC) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
 //Info à trouver/calculer dans fetch => BCC, offset, bloc d'instruction (sans decoder) et PC
 
 {
@@ -82,7 +82,7 @@ void decode(char *buffer) //Prend une instruction non PCC, découpe l'instructio
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[3],buffer[3]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[0],buffer[0]);
     buffer[0] = 0x80; // B offset with positive offset 
-    if (buffer[0] == 0x00 || buffer[0] == 0x01) //no BCC 
+    if (buffer[0] == 0x00 || buffer[0] == 0x01) //no BCC , if à supprimer
     {
         printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x01);
         info.BCC = buffer[0] & 0x10;
@@ -122,6 +122,7 @@ void main(int argc, char *argv[]) {
     printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE)");
     buffer = fetch(PC);
     decode(buffer);
+    free(buffer);
 
     /*if (argc == 3){
         int r0 = 0x10;
