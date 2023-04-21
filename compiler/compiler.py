@@ -64,7 +64,8 @@ def ParseBCC(line):
 def ReadCode():
 
     asmList = [""] * 7
-    f= open("code.txt", "rt")
+    f= open("Projet/compiler/code.txt", "rt")
+    fullList= []
     for line in f:
         print(line)
         asmList[4] = ParseBCC(line) #opcode done
@@ -84,6 +85,9 @@ def ReadCode():
         asmList[3] = int(asmList[3])
         asmList[5] = int(asmList[5])
         print(asmList)
+        fullList.append(asmList)
+        print(fullList)
+        print('here')
     f.close()
     return asmList
 
@@ -224,9 +228,8 @@ def ReadAll(asmList):
 
         binary_file.write(struct.pack('>I',ret))
         binary_file.close()
-
+    print("here")
     print(ret)
     return ret
 asmList = ReadCode()
 ReadAll(asmList)
-
