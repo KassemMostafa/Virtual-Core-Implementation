@@ -27,6 +27,7 @@ char* fetch(int PC) //BCC géré dans fetch with PC, lecture du binaire et gesti
 
     fseek(ptr, 0, SEEK_END);          // Jump to the end of the file
     filelen = ftell(ptr);             // Get the current byte offset in the file
+    printf("%ld",filelen);
     rewind(ptr);
     buffer = (char *)malloc(filelen * sizeof(char));
     fread(buffer, filelen, 1, ptr);
@@ -81,7 +82,7 @@ void decode(char *buffer) //Prend une instruction non PCC, découpe l'instructio
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[2],buffer[2]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[3],buffer[3]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[0],buffer[0]);
-    buffer[0] = 0x80; // B offset with positive offset 
+    //buffer[0] = 0x80; // B offset with positive offset 
     if (buffer[0] == 0x00 || buffer[0] == 0x01) //no BCC , if à supprimer
     {
         printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x01);
@@ -119,7 +120,7 @@ void decode(char *buffer) //Prend une instruction non PCC, découpe l'instructio
 void main(int argc, char *argv[]) {
     char *buffer;
     int PC =0;
-    printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE)");
+    printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
     buffer = fetch(PC);
     decode(buffer);
     free(buffer);

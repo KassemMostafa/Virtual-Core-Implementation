@@ -64,7 +64,7 @@ def ParseBCC(line):
 def ReadCode():
 
     asmListElement = [""] * 7
-    f= open("code.txt", "rt")
+    f= open("compiler/codeTest.txt", "rt")
     asmList= []
     for line in f:
         print(line)
@@ -225,7 +225,7 @@ def ReadOneLine(asmListElement,flag): #flag true on first call, false otherwise
     ret = int(ret, 2)
     print(ret)
     if (flag == True):    
-        with open("binary.bin", "wb") as binary_file:
+        with open("core/binary.bin", "wb") as binary_file:
 
             binary_file.write(struct.pack('>I',ret))
             binary_file.close()
@@ -233,7 +233,7 @@ def ReadOneLine(asmListElement,flag): #flag true on first call, false otherwise
         print(ret)
         return ret
     else:
-        with open("binary.bin", "ab") as binary_file:
+        with open("core/binary.bin", "ab") as binary_file:
 
             binary_file.write(struct.pack('>I',ret))
             binary_file.close()
@@ -244,7 +244,7 @@ def ReadOneLine(asmListElement,flag): #flag true on first call, false otherwise
 def ReadAll(asmList): 
     flag = True
     for asmElement in asmList:
-        ReadOneLine(asmElement, flag )
+        ReadOneLine(asmElement, True )
         flag = False
     return 0
 asmList = ReadCode()
