@@ -58,7 +58,7 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     //
 
     //Example writing right to left cause most significant is 31 all the way left
-    // MOV r1, 2 (copier collé incomplet, c'était pour tester)
+    // MOV r1, 2
     //1 : 00000010 => Immediate Value bits 0 to 7 reverse is 01000000 => 0x40
     //2 : 0001 =>  dest bytes 8 to 11 => 1 => 0001 =>   reverse 1000 => 0x8
     //3 : 0000 => ope2 12 to 15 => 0 => 0000 => reverse 0000 => 0x0
@@ -74,7 +74,6 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
                 //0x48 => 0x4 : ope2, Ox8 : dest buffer[2]
                 //0x00 => IV buffer[3]
 
-    //
     
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[0],buffer[0]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[1],buffer[1]);
@@ -163,7 +162,15 @@ char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binai
         //todo 1- get offset, 2- verify if offset = max length of file or > 0, 3- fseek to the correct offset before calling again
         //can't get offset since compiler doesn't add it to binary correctly, skip for now
         //skip step 1 and assume the value is set:
-
+            if (info.offset + PC < 0 || info.offset + PC > filelen)
+            {
+                printf("Erreur de Segmentation");
+                exit("Erreur");
+            }
+            else
+            {
+                fseek(ptr,info.offset,SEEK_CUR);
+            }
         }
     }
     
