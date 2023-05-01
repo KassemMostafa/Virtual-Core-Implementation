@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import struct
+import os
 
 
 def DecodeOperand(operands):
@@ -63,10 +64,11 @@ def ParseBCC(line):
 
 def ReadCode():
 
-    asmListElement = [""] * 7
+    
     f= open("compiler/codeTest.txt", "rt")
     asmList= []
     for line in f:
+        asmListElement = [""] * 7
         print(line)
         asmListElement[4] = ParseBCC(line) #opcode done
         if (asmListElement[4] == 0):
@@ -84,7 +86,9 @@ def ReadCode():
         asmListElement[2] = int(asmListElement[2])
         asmListElement[3] = int(asmListElement[3])
         asmListElement[5] = int(asmListElement[5])
-        print(asmListElement)
+        print("Before append")
+        print(asmList)
+        print("After Append")
         asmList.append(asmListElement)
         print(asmList)
         print('here')
@@ -215,7 +219,7 @@ def ReadBCC(asmList1):
     print("2 : " + ret)
     return ret
 
-def ReadOneLine(asmListElement,flag): #flag true on first call, false otherwise
+def ReadOneLine(asmListElement,binary_file): #flag true on first call, false otherwise
     if asmListElement[6] == 0 :
         ret = ReadImmédiateValue(asmListElement[0], asmListElement[5]) + ReadDestinationRegister(asmListElement[1]) + ReadSecondOperand(asmListElement[2],asmListElement[5]) + ReadFirstOperand(asmListElement[3]) + ReadOperationCode(asmListElement[4]) + ReadImmédiateValueFlag(asmListElement[5]) + ReadAlways0 + ReadBranchConditionCode(asmListElement[6])
     else :
@@ -223,29 +227,22 @@ def ReadOneLine(asmListElement,flag): #flag true on first call, false otherwise
     ret = str("".join(reversed(ret)))
     print("ret bfore bin" + ret)
     ret = int(ret, 2)
+    print(ret) 
+    binary_file.write(struct.pack('>I',ret))
+    print("written to file")
+    file_size = os.stat('binary.bin')
+    print(file_size.st_size)
     print(ret)
-    if (flag == True):    
-        with open("core/binary.bin", "wb") as binary_file:
-
-            binary_file.write(struct.pack('>I',ret))
-            binary_file.close()
-        print("here")
-        print(ret)
-        return ret
-    else:
-        with open("core/binary.bin", "ab") as binary_file:
-
-            binary_file.write(struct.pack('>I',ret))
-            binary_file.close()
-        print("here")
-        print(ret)
-        return ret
+    return ret
 
 def ReadAll(asmList): 
-    flag = True
-    for asmElement in asmList:
-        ReadOneLine(asmElement, True )
-        flag = False
+    with open("binary.bin","wb") as binary_file:
+        for asmElement in asmList:
+            ReadOneLine(asmElement, binary_file)
+            print("asmElement is")
+            print(asmElement)
+            print("hello")
+    binary_file.close()
     return 0
 asmList = ReadCode()
 ReadAll(asmList)
