@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import struct
+import os
 
 
 def DecodeOperand(operands):
@@ -17,40 +18,40 @@ def DecodeOperand(operands):
     return operands
 
 
-def ImmediateValueDetection(operands,asmList):
+def ImmediateValueDetection(operands,asmListElement):
 
-    asmList[1] = operands[0].replace('r', '')
+    asmListElement[1] = operands[0].replace('r', '')
     if (len(operands) == 2 ):
-        asmList[3] = operands[0].replace('r', '')
+        asmListElement[3] = operands[0].replace('r', '')
         if (operands[1].isdigit()):
-            asmList[0] = operands[1]
-            asmList[2] = operands[1]
-            asmList[5] = 1
+            asmListElement[0] = operands[1]
+            asmListElement[2] = operands[1]
+            asmListElement[5] = 1
             
         else:
-            asmList[0] = 0
-            asmList[2] = operands[1].replace('r', '')
-            asmList[5] = 0
+            asmListElement[0] = 0
+            asmListElement[2] = operands[1].replace('r', '')
+            asmListElement[5] = 0
             
     else: #len operands = 3
         if (operands[1].isdigit() and operands[2].isdigit()):
             raise Exception("Illegal Expression : Only 1 Immediate Value Allowed")
         elif (operands[1].isdigit() or operands[2].isdigit()):
-                asmList[5] = 1
+                asmListElement[5] = 1
                 if (operands[1].isdigit()):
-                     asmList[0] = operands[1]
-                     asmList[2] = operands[2].replace('r','')
-                     asmList[3] = operands[1]
+                     asmListElement[0] = operands[1]
+                     asmListElement[2] = operands[2].replace('r','')
+                     asmListElement[3] = operands[1]
                 else:
-                    asmList[0] = operands[2]
-                    asmList[2] = operands[2]
-                    asmList[3] = operands[1].replace('r','')
+                    asmListElement[0] = operands[2]
+                    asmListElement[2] = operands[2]
+                    asmListElement[3] = operands[1].replace('r','')
         else:
-            asmList[0] = 0
-            asmList[2] = operands[2].replace('r', '')
-            asmList[3] = operands[1].replace('r', '')
-            asmList[5] = 0  
-    return asmList
+            asmListElement[0] = 0
+            asmListElement[2] = operands[2].replace('r', '')
+            asmListElement[3] = operands[1].replace('r', '')
+            asmListElement[5] = 0  
+    return asmListElement
 
 def ParseBCC(line):
     bcc = ["B", "BEQ", "BNE", "BLE", "BGE", "BL", "BG"]
@@ -63,30 +64,33 @@ def ParseBCC(line):
 
 def ReadCode():
 
-    asmList = [""] * 7
-    f= open("Projet/compiler/code.txt", "rt")
-    fullList= []
+    
+    f= open("compiler/codeTest.txt", "rt")
+    asmList= []
     for line in f:
+        asmListElement = [""] * 7
         print(line)
-        asmList[4] = ParseBCC(line) #opcode done
-        if (asmList[4] == 0):
+        asmListElement[4] = ParseBCC(line) #opcode done
+        if (asmListElement[4] == 0):
             opcode = line.split(" ")[0]
             offset = line.split(" ")[1].replace('r', '').replace(',', '')
-            asmList = [offset, 0, 0, 0, 0, 1, opcode]
+            asmListElement = [offset, 0, 0, 0, 0, 1, opcode]
         else:
             operands = line.split(" ")[1:]
             operands = DecodeOperand(operands)
-            asmList = ImmediateValueDetection(operands,asmList)
-            asmList[6] = 0
+            asmListElement = ImmediateValueDetection(operands,asmListElement)
+            asmListElement[6] = 0
             
-        asmList[0] = int(asmList[0])
-        asmList[1] = int(asmList[1])
-        asmList[2] = int(asmList[2])
-        asmList[3] = int(asmList[3])
-        asmList[5] = int(asmList[5])
+        asmListElement[0] = int(asmListElement[0])
+        asmListElement[1] = int(asmListElement[1])
+        asmListElement[2] = int(asmListElement[2])
+        asmListElement[3] = int(asmListElement[3])
+        asmListElement[5] = int(asmListElement[5])
+        print("Before append")
         print(asmList)
-        fullList.append(asmList)
-        print(fullList)
+        print("After Append")
+        asmList.append(asmListElement)
+        print(asmList)
         print('here')
     f.close()
     return asmList
@@ -215,21 +219,30 @@ def ReadBCC(asmList1):
     print("2 : " + ret)
     return ret
 
-def ReadAll(asmList):
-    if asmList[6] == 0 :
-        ret = ReadImmédiateValue(asmList[0], asmList[5]) + ReadDestinationRegister(asmList[1]) + ReadSecondOperand(asmList[2],asmList[5]) + ReadFirstOperand(asmList[3]) + ReadOperationCode(asmList[4]) + ReadImmédiateValueFlag(asmList[5]) + ReadAlways0 + ReadBranchConditionCode(asmList[6])
+def ReadOneLine(asmListElement,binary_file): #flag true on first call, false otherwise
+    if asmListElement[6] == 0 :
+        ret = ReadImmédiateValue(asmListElement[0], asmListElement[5]) + ReadDestinationRegister(asmListElement[1]) + ReadSecondOperand(asmListElement[2],asmListElement[5]) + ReadFirstOperand(asmListElement[3]) + ReadOperationCode(asmListElement[4]) + ReadImmédiateValueFlag(asmListElement[5]) + ReadAlways0 + ReadBranchConditionCode(asmListElement[6])
     else :
-        ret = ReadBCC(asmList[0]) + ReadBranchConditionCode(asmList[6])
+        ret = ReadBCC(asmListElement[0]) + ReadBranchConditionCode(asmListElement[6])
     ret = str("".join(reversed(ret)))
     print("ret bfore bin" + ret)
     ret = int(ret, 2)
-    print(ret)
-    with open("binary.bin", "wb") as binary_file:
-
-        binary_file.write(struct.pack('>I',ret))
-        binary_file.close()
-    print("here")
+    print(ret) 
+    binary_file.write(struct.pack('>I',ret))
+    print("written to file")
+    file_size = os.stat('binary.bin')
+    print(file_size.st_size)
     print(ret)
     return ret
+
+def ReadAll(asmList): 
+    with open("binary.bin","wb") as binary_file:
+        for asmElement in asmList:
+            ReadOneLine(asmElement, binary_file)
+            print("asmElement is")
+            print(asmElement)
+            print("hello")
+    binary_file.close()
+    return 0
 asmList = ReadCode()
 ReadAll(asmList)

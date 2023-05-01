@@ -10,36 +10,32 @@ struct instruction{
     int First_op;
     int Second_op;
     int destination_Register;
-    int PC;
+    int offset; //j'ai remplacé PC par offset pour gérer le BCC, PC est interne à la fonction fetch
 };
+int r0 = 0x0;
+int r1 = 0x1;
+int r2 = 0x2;
+int r3 = 0x3;
+int r4 = 0x4;
+int r5 = 0x5;
+int r6 = 0x6;
+int r7 = 0x7;
+int r8 = 0x8;
+int r9 = 0x9;
+int r10 = 0xa;
+int r11 = 0xb;
+int r12 = 0xc;
+int r13 = 0xd;
+int r14 = 0xe;
+int r15 = 0xf;
+int FLAGS = 0x0;
 
-
-char* fetch(int PC) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
-//Info à trouver/calculer dans fetch => BCC, offset, bloc d'instruction (sans decoder) et PC
-
-{
-    char *buffer;
-    FILE *ptr;
-    long filelen;
-    printf("ok");
-    ptr = fopen("binary.bin","rb");  // r for read, b for binary
-
-
-    fseek(ptr, 0, SEEK_END);          // Jump to the end of the file
-    filelen = ftell(ptr);             // Get the current byte offset in the file
-    rewind(ptr);
-    buffer = (char *)malloc(filelen * sizeof(char));
-    fread(buffer, filelen, 1, ptr);
-    fclose(ptr);
-    for (int i = 0; i < filelen; ++i) {
-        printf("\n%x %d \n", buffer[i], i);
-    }
-    return buffer;
-}
-
-void decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
+struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
     struct instruction info;
+    
+
+    
     // int line = 0x00184800;
     // int line2 = 0xffffff;
     // int line3 = 0x1000000;
@@ -75,13 +71,33 @@ void decode(char *buffer) //Prend une instruction non PCC, découpe l'instructio
                 //0x18 => 0x1 : opcode, 0x8 : ope1 buffer[1]
                 //0x48 => 0x4 : ope2, Ox8 : dest buffer[2]
                 //0x00 => IV buffer[3]
+
+    //
+
+    //Example writing right to left cause most significant is 31 all the way left
+    // MOV r1, 2
+    //1 : 00000010 => Immediate Value bits 0 to 7 reverse is 01000000 => 0x40
+    //2 : 0001 =>  dest bytes 8 to 11 => 1 => 0001 =>   reverse 1000 => 0x8
+    //3 : 0000 => ope2 12 to 15 => 0 => 0000 => reverse 0000 => 0x0
+    //4 : 0001 => ope1 16 to 19 => 1 => 0001 => reverse 1000 => 0x8
+    //5 : 1000 => opcode 20 to 23 => 8 => 1000 => reverse 0001 => 0x1
+    //6 : 1 => immediate value flag + 000  bit 24 to 27 => reverse 0001 => 0x1
+    //7 : 0000 => bcc bit 28 to 31 => 0000 => 0x0
+    // Before reverse : left to right => bit 0 to 31 => 0000 0010 0000 0001 1000 1000 0000
+    // After reverse : left to right => bit 31 to 0 => 0000 0001 0001 1000 0000 0100 0000
+    // Expected Hex : 0x01180840 => correspond à after reverse :::
+                // 0x00 => 0x0 : bcc, 0x1 : IV flag buffer[0]
+                //0x18 => 0x1 : opcode, 0x8 : ope1 buffer[1]
+                //0x48 => 0x4 : ope2, Ox8 : dest buffer[2]
+                //0x00 => IV buffer[3]
+
     
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[0],buffer[0]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[1],buffer[1]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[2],buffer[2]);
     printf("Value of a: Hex: %X, Decimal: %d \n",buffer[3],buffer[3]);
-    printf("Value of a: Hex: %X, Decimal: %d \n",buffer[0],buffer[0]);
-    buffer[0] = 0x80; // B offset with positive offset 
+    //buffer[0] = 0x80; // B offset with positive offset 
+    
     if (buffer[0] == 0x00 || buffer[0] == 0x01) //no BCC , if à supprimer
     {
         printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x01);
@@ -91,14 +107,15 @@ void decode(char *buffer) //Prend une instruction non PCC, découpe l'instructio
         info.opCode = buffer[1] >> 4 & 0xF;
         info.First_op = buffer[1] & 0x0F;
         printf("Buffer 2 => ope2|dest: %x|%x \n",buffer[2] >> 4 & 0xF,buffer[2] & 0x0F);
-        buffer[3] = 0xFF;
+        info.Second_op = buffer[2] >> 4;
+        info.destination_Register = buffer[2] & 0x0F;
         printf("Buffer 3 => IV: %x\n", buffer[3] & 0xFF);
+        info.immediate_Value = buffer[3] & 0xFF;
         
     }
     else
     {
         printf("BCC");
-        
     }
     //Rappel bit shifting
     // A = 60 => 0011 1100
@@ -112,16 +129,93 @@ void decode(char *buffer) //Prend une instruction non PCC, découpe l'instructio
     // 0011 1100 >>2 => 0000 1111
 
     // Case 2 :  BCC => bit 0 to 26 => offset => offset and bit 27 => positive (0) or negative (1) => total : 28 bits => 7 bytes  
-    
+    return info;
 }
+
+void execute(struct instruction info)
+{
+    switch(info.opCode)
+    {
+        case 0:
+            break;
+        
+    }
+}
+
+char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
+//Info à trouver/calculer dans fetch => BCC, offset, bloc d'instruction (sans decoder) et PC
+
+{
+    //TODO => handle multiple instructions
+    char *buffer;
+    //FILE *ptr;
+    char bcc;
+    struct instruction info;
+    long filelen;
+    //printf("ok\n");
+    //ptr = fopen("binary.bin","rb");  // r for read, b for binary, open outside function
+    //first call : I read 4 bytes, cursor at the end of the 4 bytes.
+    fseek(ptr, 0, SEEK_END);          // Jump to the end of the file
+    filelen = ftell(ptr)/4;             // Get the current byte offset in the file
+    printf("file length : %ld \n",filelen); //3 lines was to know the malloc size => //file len = number of bytes, 1 line of code = 4 bytes, line number = (filelen/PC)/4
+    
+    rewind(ptr); //called only at the beginning 
+    buffer = (char *)malloc(4 * sizeof(char));
+    while (fread(buffer, 4 , 1, ptr) == 1) //read until there's nothing left to read
+    {
+        printf("here");
+        
+        //fclose(ptr);
+        for (int i = 0; i < 4; ++i)
+            printf("\n%x %d \n", buffer[i], i);
+        info = decode(buffer);
+        
+        bcc = buffer[0] & 0x10;
+        printf("%x", bcc);
+        if (bcc == 0x0) //no BCC
+        {
+            //CALL EXECUTE
+            printf("NO BCC\n");
+             //
+            PC++;
+        }
+        else
+        {
+        //todo 1- get offset, 2- verify if offset = max length of file or > 0, 3- fseek to the correct offset before calling again
+        //can't get offset since compiler doesn't add it to binary correctly, skip for now
+        //skip step 1 and assume the value is set:
+            if (info.offset + PC < 0 || info.offset + PC > filelen)
+            {
+                printf("Erreur de Segmentation");
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                fseek(ptr,info.offset,SEEK_CUR);
+            }
+        }
+    }
+    
+
+    
+    
+    
+    
+    return 0;
+}
+
+
 
 
 void main(int argc, char *argv[]) {
     char *buffer;
-    int PC =0;
-    printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE)");
-    buffer = fetch(PC);
-    decode(buffer);
+    FILE *ptr;
+    int PC =1;
+    printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
+    ptr = fopen("binary.bin","rb");
+    buffer = fetch(PC, ptr);
+    fclose(ptr);
+    //decode(buffer);
     free(buffer);
 
     /*if (argc == 3){
