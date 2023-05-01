@@ -12,6 +12,23 @@ struct instruction{
     int destination_Register;
     int offset; //j'ai remplacé PC par offset pour gérer le BCC, PC est interne à la fonction fetch
 };
+int r0 = 0x0;
+int r1 = 0x1;
+int r2 = 0x2;
+int r3 = 0x3;
+int r4 = 0x4;
+int r5 = 0x5;
+int r6 = 0x6;
+int r7 = 0x7;
+int r8 = 0x8;
+int r9 = 0x9;
+int r10 = 0xa;
+int r11 = 0xb;
+int r12 = 0xc;
+int r13 = 0xd;
+int r14 = 0xe;
+int r15 = 0xf;
+int FLAGS = 0x0;
 
 struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
@@ -98,7 +115,7 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     }
     else
     {
-        prinf("BCC");
+        printf("BCC");
     }
     //Rappel bit shifting
     // A = 60 => 0011 1100
@@ -115,9 +132,14 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     return info;
 }
 
-void execute(char *buffer)
+void execute(struct instruction info)
 {
-    
+    switch(info.opCode)
+    {
+        case 0:
+            break;
+        
+    }
 }
 
 char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
@@ -165,7 +187,7 @@ char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binai
             if (info.offset + PC < 0 || info.offset + PC > filelen)
             {
                 printf("Erreur de Segmentation");
-                exit("Erreur");
+                exit(EXIT_FAILURE);
             }
             else
             {

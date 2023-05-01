@@ -1,2 +1,4 @@
+AND r1, r2
+ORR r1, 2
+EOR r1, r2
 MOV r1, r2
-MOV r1, 2
