@@ -1,0 +1,33 @@
+[33mea88f62[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Merge pull request #4 from KassemMostafa/compiler
+[33m4836355[m compiler and fetch finalization except BCC
+[33m442a4a6[m Gestion de offset, A faire : fix BCC compilation
+[33mdb89b20[m Lire plusieurs lignes d'instructions et fetch fonctionnel dans le core avec plusieurs instructions avec gestion du PC
+[33me46e28b[m fetch
+[33m9786532[m Can read all lines, not tested yet
+[33m386b1e0[m List 2D pour plusieurs lignes
+[33m40a2a60[m[33m ([m[1;31morigin/decode[m[33m)[m added free
+[33m396f1dc[m Commentaire pour fonctionnement des fonctions pour pas oublier
+[33mada2540[m Decode works
+[33m798f7c1[m Merge branch 'main' of github.com:KassemMostafa/Virtual-Core-Implementation
+[33m64d3d33[m Commentaire pour comprendre à supprimer à la fin
+[33m7a80f02[m fetch v1
+[33mff34a5b[m big end
+[33m847cb8c[m fix 2
+[33m95f6221[m Cast int
+[33m55b02e2[m fix 1
+[33m33b6435[m hello w
+[33m2794169[m[33m ([m[1;32mdevL[m[33m)[m Merge pull request #3 from KassemMostafa/devM
+[33me7e0643[m[33m ([m[1;31morigin/devM[m[33m)[m Merge branch 'main' into devM
+[33m7db559c[m Compiling done
+[33meb7964e[m Merge pull request #2 from KassemMostafa/devL
+[33mb936017[m[33m ([m[1;31morigin/devL[m[33m)[m fix
+[33me2c0a6f[m Merge pull request #1 from KassemMostafa/devL
+[33m3a78eea[m Merge branch 'main' into devL
+[33mc3988b6[m binary file generation
+[33mcb5c9c9[m init
+[33m99fe008[m squelette
+[33m995e707[m update readme
+[33mc2a778a[m compiler file
+[33m95ec16b[m readme2
+[33m6719a1a[m readme
+[33m3e2695a[m Initial commit
