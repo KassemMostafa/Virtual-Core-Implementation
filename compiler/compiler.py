@@ -65,7 +65,7 @@ def ParseBCC(line):
 def ReadCode():
 
     
-    f= open("compiler/codeTest.txt", "rt")
+    f= open("compiler/code.txt", "rt")
     asmList= []
     for line in f:
         asmListElement = [""] * 7
@@ -240,19 +240,19 @@ def ReadBCC(asmList1):
     return ret
 
 def ReadOneLine(asmListElement,binary_file): #flag true on first call, false otherwise
-    if asmList[6] == 0 :
-        ret = ReadImmédiateValue(asmList[0], asmList[5]) + ReadDestinationRegister(asmList[1]) + ReadSecondOperand(asmList[2],asmList[5]) + ReadFirstOperand(asmList[3]) + ReadOperationCode(asmList[4]) + ReadImmédiateValueFlag(asmList[5]) + ReadAlways0 + ReadBranchConditionCode(asmList[6])
+    if asmListElement[6] == 0 :
+        ret = ReadImmédiateValue(asmListElement[0], asmListElement[5]) + ReadDestinationRegister(asmListElement[1]) + ReadSecondOperand(asmListElement[2],asmListElement[5]) + ReadFirstOperand(asmListElement[3]) + ReadOperationCode(asmListElement[4]) + ReadImmédiateValueFlag(asmListElement[5]) + ReadAlways0 + ReadBranchConditionCode(asmListElement[6])
         ret2 = ""
         for i in range(8):
             ret2 = ret2 + str(ret[28 - i * 4:32 - i * 4])
         print("ret after bin : " + ret2)
-        ret = int(ret, 2)
+        ret = int(ret2, 2)
     else :
-        ret = ReadBranchConditionCode(asmList[6])+ReadBCC(asmList[0])
+        ret = ReadBranchConditionCode(asmListElement[6])+ReadBCC(asmListElement[0])
         print("ret after bin : " + ret)
         ret = int(ret, 2)
-    print("ret bfore bin" + ret)
-    ret = int(ret, 2)
+    print("ret bfore bin" + str(ret))
+    
     print(ret)
     binary_file.write(struct.pack('>I',ret))
     print("written to file")
@@ -262,6 +262,7 @@ def ReadOneLine(asmListElement,binary_file): #flag true on first call, false oth
 def ReadAll(asmList):
     with open("binary.bin","wb") as binary_file:
         for asmElement in asmList:
+            print("rol")
             ReadOneLine(asmElement, binary_file)
             print("asmElement is")
             print(asmElement)
