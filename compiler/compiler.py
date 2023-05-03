@@ -65,7 +65,7 @@ def ParseBCC(line):
 def ReadCode():
 
     
-    f= open("compiler/code.txt", "rt")
+    f= open("code.txt", "rt")
     asmList= []
     for line in f:
         asmListElement = [""] * 7
@@ -128,6 +128,10 @@ def ReadImmédiateValue(asmList0, asmList5):
         a = len(ret)-8
         ret = ret[a:]
     print("1 : " + ret)
+    ret2=""
+    for i in range(2):
+        ret2=ret2 +str(ret[4 - i * 4:8- i * 4])
+    ret = ret2
     return ret
 
 def ReadDestinationRegister(asmList1):

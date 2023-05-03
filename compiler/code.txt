@@ -4,4 +4,4 @@ ADD r1, r2, 4
 ADD r1, 5, r2
 CMP r2, r5
 MOV r1, r2
-BEQ -35
+MOV r1, 3
