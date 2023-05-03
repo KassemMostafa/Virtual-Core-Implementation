@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 struct instruction{
     int r[16];
@@ -12,23 +13,11 @@ struct instruction{
     int destination_Register;
     int offset; //j'ai remplacé PC par offset pour gérer le BCC, PC est interne à la fonction fetch
 };
-int r0 = 0x0;
-int r1 = 0x1;
-int r2 = 0x2;
-int r3 = 0x3;
-int r4 = 0x4;
-int r5 = 0x5;
-int r6 = 0x6;
-int r7 = 0x7;
-int r8 = 0x8;
-int r9 = 0x9;
-int r10 = 0xa;
-int r11 = 0xb;
-int r12 = 0xc;
-int r13 = 0xd;
-int r14 = 0xe;
-int r15 = 0xf;
-int FLAGS = 0x0;
+
+
+int r[16];
+int FLAGS;
+
 
 struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
@@ -101,11 +90,13 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     if (buffer[0] == 0x00 || buffer[0] == 0x01) //no BCC , if à supprimer
     {
         printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x01);
-        info.BCC = buffer[0] & 0x10;
+        info.BCC = 0;
         info.immediate_Value_Flag = buffer[0] & 0x01;
+        printf("Buffer 11 => opcode|ope1: %x, in decimal \n", buffer[1] >> 4 & 0xF);
         printf("Buffer 1 => opcode|ope1: %x|%x \n",buffer[1] >>4 & 0xF, buffer[1] & 0x0F);
         info.opCode = buffer[1] >> 4 & 0xF;
         info.First_op = buffer[1] & 0x0F;
+        printf("OPcode = %x \n",buffer[1] >> 4 & 0xF);
         printf("Buffer 2 => ope2|dest: %x|%x \n",buffer[2] >> 4 & 0xF,buffer[2] & 0x0F);
         info.Second_op = buffer[2] >> 4;
         info.destination_Register = buffer[2] & 0x0F;
@@ -132,12 +123,46 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     return info;
 }
 
+
+
 void execute(struct instruction info)
 {
+
     switch(info.opCode)
     {
-        case 0:
+        case 0: //AND
+            if (info.immediate_Value_Flag)
+            {
+                r[info.First_op] = r[info.First_op] & info.immediate_Value;
+            }
+            else
+            {
+                r[info.First_op] = r[info.First_op] & r[info.Second_op];
+            }
             break;
+        case 1: //ORR
+             if (info.immediate_Value_Flag)
+            {
+                r[info.First_op] = r[info.First_op] | info.immediate_Value;
+            }
+            else
+            {
+                r[info.First_op] = r[info.First_op] | r[info.Second_op];
+            }
+            break;
+        case 2: //EOR
+            if (info.immediate_Value_Flag)
+            {
+                r[info.First_op] = r[info.First_op] ^ info.immediate_Value;
+            }
+            else
+            {
+                r[info.First_op] = r[info.First_op] ^ r[info.Second_op];
+            }
+            break;
+        case 3: //ADD
+                    //gestion des bornes et addition hexa par hexa car sans retenu
+
         
     }
 }
@@ -194,13 +219,7 @@ char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binai
                 fseek(ptr,info.offset,SEEK_CUR);
             }
         }
-    }
-    
-
-    
-    
-    
-    
+    }    
     return 0;
 }
 
@@ -211,6 +230,7 @@ void main(int argc, char *argv[]) {
     char *buffer;
     FILE *ptr;
     int PC =1;
+    
     printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
     ptr = fopen("binary.bin","rb");
     buffer = fetch(PC, ptr);
