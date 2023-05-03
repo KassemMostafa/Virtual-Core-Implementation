@@ -14,8 +14,8 @@ struct instruction{
 };
 
 
-int r[16];
-int FLAGS;
+uint64_t r[16];
+int FLAGS[6] = {0,0,0,0,0,0}; // {BEQ, BNE, BLE, BGE, BL, BG}
 
 
 struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
@@ -122,15 +122,37 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     return info;
 }
 
-int overflowCheck(struct instruction info) //checks if there's an overflow in case of ADD with carry
+//checks if there's an overflow in case of ADD with carry
+int overflowCheck(uint64_t a, uint64_t b, int error_Flag)  //error_Flag decide whether to throw an error or not
 {
+    uint8_t msb_1;
+    uint8_t msb_2;
+    uint16_t sum_msb;
 
+    msb_1 = (a >> 56) & 0xff;
+    msb_2 = (b >> 56) & 0xff;
+    sum_msb = msb_1 + msb_2;
+
+    if (sum_msb > 0xff) 
+    {
+        //printf("Ignored Carry on MSB");
+        if (error_Flag)
+        {
+            printf("Error : Overflow Detected");
+            exit(EXIT_FAILURE);
+
+        }
+        else
+            return 1; //1 for overflow detected
+    }
+    else
+        return 0; //no overflow
 }
 
 int IVCheck(struct instruction info) //compares IV with operand1 or 2 to know which is a register and which isn't
 {
 
-        if (info.IV_Flag)
+    if (info.IV_Flag)
     {
         if (info.ope1 == info.IV) //IV is first op position
             return 1;
@@ -139,6 +161,29 @@ int IVCheck(struct instruction info) //compares IV with operand1 or 2 to know wh
     }
     else
         return 0;
+}
+
+void setFlag(int BEQ,int BNE,int BLE,int BGE,int BL,int BG)
+    {
+        FLAGS[0] = BEQ;
+        FLAGS[1] = BNE;
+        FLAGS[2] = BLE;
+        FLAGS[3] = BGE;
+        FLAGS[4] = BL;
+        FLAGS[5] = BG;
+        
+    }
+
+void checkFlag(uint64_t a, uint64_t b) //used when CMP
+{   
+    if (a == b)
+        setFlag(1,0,1,1,0,0);
+    if (a > b)
+        setFlag(0,1,0,1,0,1);
+    if (a < b)
+        setFlag(0,1,1,0,1,0);
+        
+    
 }
 
 void execute(struct instruction info)
@@ -151,34 +196,57 @@ void execute(struct instruction info)
     {
         case 0: //AND
             if (!IVPos)
-                r[info.dest] = r[info.ope1] & r[info.Second_op];
+                r[info.dest] = r[info.ope1] & r[info.ope2];
             else
-                r[info.destination_Register] = r[info.destination_Register] & info.immediate_Value;   
+                r[info.dest] = r[info.dest] & info.IV;   
             break;
         case 1: //ORR
             if (!IVPos)
-                r[info.destination_Register] = r[info.ope1] | r[info.Second_op];
+                r[info.dest] = r[info.ope1] | r[info.ope2];
             else
-                r[info.destination_Register] = r[info.destination_Register] | info.immediate_Value;   
+                r[info.dest] = r[info.dest] | info.IV;   
             break;
-        case 2: //EOR
+        case 3: //ADD //vide parce que EOR et ADD sont pareil
+        case 6: //SUB vide pour les même raisons
+        case 2: //EOR 
             if (!IVPos)
-                r[info.destination_Register] = r[info.ope1] ^ r[info.Second_op];
+                r[info.dest] = r[info.ope1] ^ r[info.ope2];
             else
-                r[info.destination_Register] = r[info.destination_Register] ^ info.immediate_Value;   
+                r[info.dest] = r[info.dest] ^ info.IV;   
             break;
-            if (info.immediate_Value_Flag)
+        case 4: //ADC => test with https://onlinehextools.com/add-hex-numbers
+            if (!IVPos)
             {
-                r[info.ope1] = r[info.ope1] ^ info.immediate_Value;
+                if (!overflowCheck(r[info.ope1],r[info.ope2],1))
+                    r[info.dest] = r[info.ope1] + r[info.ope2];
             }
             else
             {
-                r[info.First_op] = r[info.First_op] ^ r[info.Second_op];
+                if (IVPos == 1)
+                {
+                    if (!overflowCheck(info.IV,r[info.ope2],1))
+                    r[info.dest] = info.IV + r[info.ope2];
+                }
+                else
+                {
+                    if (!overflowCheck(r[info.ope1],info.IV,1))
+                    r[info.dest] = r[info.ope1] + info.IV;
+                }
             }
             break;
-        case 3: //ADD
-
-
+        case 5: //CMP
+            if (!IVPos)
+                checkFlag(r[info.ope1], r[info.ope2]);
+            else
+                checkFlag(r[info.dest], info.IV);
+            break;
+        case 8: //MOV
+            if (info.IV_Flag)
+                r[info.dest] = r[info.ope2];
+            else
+                r[info.dest] = info.IV;
+        case 9: //LSH
+            
         
     }
 }
@@ -246,14 +314,28 @@ void main(int argc, char *argv[]) {
     char *buffer;
     FILE *ptr;
     int PC =1;
+    int i;
     
-    printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
-    ptr = fopen("binary.bin","rb");
-    buffer = fetch(PC, ptr);
-    fclose(ptr);
-    //decode(buffer);
-    free(buffer);
 
+    // for (i =0; i<16;i++)
+    // {
+    //     r[i] = 0x0;
+    // }
+
+    // printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
+    // ptr = fopen("binary.bin","rb");
+    // buffer = fetch(PC, ptr);
+    // fclose(ptr);
+    // free(buffer);
+
+    r[0] = 0xF000000000000000;
+    r[1] = 0x7fffffffffffffff;
+
+    
+    r[2] = r[0] + r[1];
+    
+    printf("sum = 0x%lx\n", r[2]);
+    
     /*if (argc == 3){
         int r0 = 0x10;
         printf( "%x \n",r0);

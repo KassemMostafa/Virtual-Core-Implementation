@@ -65,7 +65,7 @@ def ParseBCC(line): #Detects if there's a BCC or not, if it does, returns 0 (as 
 def ReadCode(): # if no BCC returns [IV, dest, ope2, ope1, opcode, IV Flag, 0 (cause no BCC)], if BCC returns [offset, 0,0,0,0,1,BCC]
 #limitation : IV is written as ope1 or ope2, need to compare ope2 and ope1 value to IV for operation with 
     
-    f= open("code.txt", "rt")
+    f= open("compiler/code.txt", "rt")
     asmList= []
     for line in f:
         asmListElement = [""] * 7
