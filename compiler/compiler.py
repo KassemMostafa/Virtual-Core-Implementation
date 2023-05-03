@@ -53,7 +53,7 @@ def ImmediateValueDetection(operands,asmListElement):
             asmListElement[5] = 0  
     return asmListElement
 
-def ParseBCC(line):
+def ParseBCC(line): #Detects if there's a BCC or not, if it does, returns 0 (as bcc is in a different area) else returns opcode to opcode case asmListElement[4]
     bcc = ["B", "BEQ", "BNE", "BLE", "BGE", "BL", "BG"]
     opcode = line.split(" ")[0]
     if (opcode in bcc):
@@ -62,15 +62,15 @@ def ParseBCC(line):
     else:
         return opcode
 
-def ReadCode():
-
+def ReadCode(): # if no BCC returns [IV, dest, ope2, ope1, opcode, IV Flag, 0 (cause no BCC)], if BCC returns [offset, 0,0,0,0,1,BCC]
+#limitation : IV is written as ope1 or ope2, need to compare ope2 and ope1 value to IV for operation with 
     
     f= open("compiler/codeTest.txt", "rt")
     asmList= []
     for line in f:
         asmListElement = [""] * 7
         print(line)
-        asmListElement[4] = ParseBCC(line) #opcode done
+        asmListElement[4] = ParseBCC(line) 
         if (asmListElement[4] == 0):
             opcode = line.split(" ")[0]
             offset = line.split(" ")[1].replace('r', '').replace(',', '')

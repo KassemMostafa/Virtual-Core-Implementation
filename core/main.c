@@ -3,14 +3,13 @@
 #include <inttypes.h>
 
 struct instruction{
-    int r[16];
-    int immediate_Value;
-    int immediate_Value_Flag;
     int BCC;
+    int IV_Flag;
     int opCode;
-    int First_op;
-    int Second_op;
-    int destination_Register;
+    int ope1;
+    int ope2;
+    int dest;
+    int IV;
     int offset; //j'ai remplacé PC par offset pour gérer le BCC, PC est interne à la fonction fetch
 };
 
@@ -91,17 +90,17 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     {
         printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x01);
         info.BCC = 0;
-        info.immediate_Value_Flag = buffer[0] & 0x01;
+        info.IV_Flag = buffer[0] & 0x01;
         printf("Buffer 11 => opcode|ope1: %x, in decimal \n", buffer[1] >> 4 & 0xF);
         printf("Buffer 1 => opcode|ope1: %x|%x \n",buffer[1] >>4 & 0xF, buffer[1] & 0x0F);
         info.opCode = buffer[1] >> 4 & 0xF;
-        info.First_op = buffer[1] & 0x0F;
+        info.ope1 = buffer[1] & 0x0F;
         printf("OPcode = %x \n",buffer[1] >> 4 & 0xF);
         printf("Buffer 2 => ope2|dest: %x|%x \n",buffer[2] >> 4 & 0xF,buffer[2] & 0x0F);
-        info.Second_op = buffer[2] >> 4;
-        info.destination_Register = buffer[2] & 0x0F;
+        info.ope2 = buffer[2] >> 4;
+        info.dest = buffer[2] & 0x0F;
         printf("Buffer 3 => IV: %x\n", buffer[3] & 0xFF);
-        info.immediate_Value = buffer[3] & 0xFF;
+        info.IV = buffer[3] & 0xFF;
         
     }
     else
@@ -123,34 +122,51 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     return info;
 }
 
+int overflowCheck(struct instruction info) //checks if there's an overflow in case of ADD with carry
+{
 
+}
+
+int IVCheck(struct instruction info) //compares IV with operand1 or 2 to know which is a register and which isn't
+{
+
+        if (info.IV_Flag)
+    {
+        if (info.ope1 == info.IV) //IV is first op position
+            return 1;
+        else
+            return 2; //IV is second op position
+    }
+    else
+        return 0;
+}
 
 void execute(struct instruction info)
 {
+    int IVPos =  IVCheck(info);//var used to check which operand is the IV, has the same utility as info.immediate_Value_Flag if there's no immediate value
+
+
 
     switch(info.opCode)
     {
         case 0: //AND
-            if (info.immediate_Value_Flag)
-            {
-                r[info.First_op] = r[info.First_op] & info.immediate_Value;
-            }
+            if (!IVPos)
+                r[info.destination_Register] = r[info.First_op] & r[info.Second_op];
             else
-            {
-                r[info.First_op] = r[info.First_op] & r[info.Second_op];
-            }
+                r[info.destination_Register] = r[info.destination_Register] & info.immediate_Value;   
             break;
         case 1: //ORR
-             if (info.immediate_Value_Flag)
-            {
-                r[info.First_op] = r[info.First_op] | info.immediate_Value;
-            }
+            if (!IVPos)
+                r[info.destination_Register] = r[info.First_op] | r[info.Second_op];
             else
-            {
-                r[info.First_op] = r[info.First_op] | r[info.Second_op];
-            }
+                r[info.destination_Register] = r[info.destination_Register] | info.immediate_Value;   
             break;
         case 2: //EOR
+            if (!IVPos)
+                r[info.destination_Register] = r[info.First_op] ^ r[info.Second_op];
+            else
+                r[info.destination_Register] = r[info.destination_Register] ^ info.immediate_Value;   
+            break;
             if (info.immediate_Value_Flag)
             {
                 r[info.First_op] = r[info.First_op] ^ info.immediate_Value;
@@ -161,7 +177,7 @@ void execute(struct instruction info)
             }
             break;
         case 3: //ADD
-                    //gestion des bornes et addition hexa par hexa car sans retenu
+
 
         
     }
