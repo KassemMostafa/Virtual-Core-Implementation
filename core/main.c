@@ -151,25 +151,25 @@ void execute(struct instruction info)
     {
         case 0: //AND
             if (!IVPos)
-                r[info.destination_Register] = r[info.First_op] & r[info.Second_op];
+                r[info.dest] = r[info.ope1] & r[info.Second_op];
             else
                 r[info.destination_Register] = r[info.destination_Register] & info.immediate_Value;   
             break;
         case 1: //ORR
             if (!IVPos)
-                r[info.destination_Register] = r[info.First_op] | r[info.Second_op];
+                r[info.destination_Register] = r[info.ope1] | r[info.Second_op];
             else
                 r[info.destination_Register] = r[info.destination_Register] | info.immediate_Value;   
             break;
         case 2: //EOR
             if (!IVPos)
-                r[info.destination_Register] = r[info.First_op] ^ r[info.Second_op];
+                r[info.destination_Register] = r[info.ope1] ^ r[info.Second_op];
             else
                 r[info.destination_Register] = r[info.destination_Register] ^ info.immediate_Value;   
             break;
             if (info.immediate_Value_Flag)
             {
-                r[info.First_op] = r[info.First_op] ^ info.immediate_Value;
+                r[info.ope1] = r[info.ope1] ^ info.immediate_Value;
             }
             else
             {

@@ -65,7 +65,7 @@ def ParseBCC(line): #Detects if there's a BCC or not, if it does, returns 0 (as 
 def ReadCode(): # if no BCC returns [IV, dest, ope2, ope1, opcode, IV Flag, 0 (cause no BCC)], if BCC returns [offset, 0,0,0,0,1,BCC]
 #limitation : IV is written as ope1 or ope2, need to compare ope2 and ope1 value to IV for operation with 
     
-    f= open("compiler/codeTest.txt", "rt")
+    f= open("code.txt", "rt")
     asmList= []
     for line in f:
         asmListElement = [""] * 7
@@ -109,6 +109,16 @@ def ReadCode(): # if no BCC returns [IV, dest, ope2, ope1, opcode, IV Flag, 0 (c
 
 
 
+
+
+
+
+
+
+
+
+
+
 ##LOICK
 def ReadImmédiateValue(asmList0, asmList5):
     ret = "00000000"
@@ -118,6 +128,10 @@ def ReadImmédiateValue(asmList0, asmList5):
         a = len(ret)-8
         ret = ret[a:]
     print("1 : " + ret)
+    ret2=""
+    for i in range(2):
+        ret2=ret2 +str(ret[4 - i * 4:8- i * 4])
+    ret = ret2
     return ret
 
 def ReadDestinationRegister(asmList1):
@@ -201,43 +215,58 @@ def ReadBranchConditionCode(asmList6):
     return ret
 
 def ReadBCC(asmList1):
-    ret = str(bin(asmList1))[2:]
-    print( "ret21 = " + ret)
-    print(ret[1:])
-    ret = ret[1:]
-    ret = "0" * 27 + ret
-    a = len(ret) - 27
-    print( "ret2 = " + ret)
-
-    ret = ret[a:]
-    print( "ret2 = " + ret)
-
     if asmList1 < 0:
-        ret = ret + "1"
+        ret = str(bin(asmList1))[3:]
+        print( "ret21 = " + ret)
+        ret = "0" * 27 +ret
+        a = len(ret) - 27
+        print( "ret2 = " + ret)
+
+        ret = ret[a:]
+        print( "ret2 = " + ret)
+        print("amslist1 : " + str(asmList1))
+        ret = "1" + ret
+
+
     else:
-        ret = ret + "0"
+        ret = str(bin(asmList1))[2:]
+        print("ret21 = " + ret)
+        ret = "0" * 27 + ret
+        a = len(ret) - 27
+        print("ret2 = " + ret)
+
+        ret = ret[a:]
+        print("ret2 = " + ret)
+        print("amslist1 : " + str(asmList1))
+        ret = "0"+ret
+
     print("2 : " + ret)
     return ret
 
 def ReadOneLine(asmListElement,binary_file): #flag true on first call, false otherwise
     if asmListElement[6] == 0 :
         ret = ReadImmédiateValue(asmListElement[0], asmListElement[5]) + ReadDestinationRegister(asmListElement[1]) + ReadSecondOperand(asmListElement[2],asmListElement[5]) + ReadFirstOperand(asmListElement[3]) + ReadOperationCode(asmListElement[4]) + ReadImmédiateValueFlag(asmListElement[5]) + ReadAlways0 + ReadBranchConditionCode(asmListElement[6])
+        ret2 = ""
+        for i in range(8):
+            ret2 = ret2 + str(ret[28 - i * 4:32 - i * 4])
+        print("ret after bin : " + ret2)
+        ret = int(ret2, 2)
     else :
-        ret = ReadBCC(asmListElement[0]) + ReadBranchConditionCode(asmListElement[6])
-    ret = str("".join(reversed(ret)))
-    print("ret bfore bin" + ret)
-    ret = int(ret, 2)
-    print(ret) 
+        ret = ReadBranchConditionCode(asmListElement[6])+ReadBCC(asmListElement[0])
+        print("ret after bin : " + ret)
+        ret = int(ret, 2)
+    print("ret bfore bin" + str(ret))
+    
+    print(ret)
     binary_file.write(struct.pack('>I',ret))
     print("written to file")
-    file_size = os.stat('binary.bin')
-    print(file_size.st_size)
-    print(ret)
+
     return ret
 
-def ReadAll(asmList): 
+def ReadAll(asmList):
     with open("binary.bin","wb") as binary_file:
         for asmElement in asmList:
+            print("rol")
             ReadOneLine(asmElement, binary_file)
             print("asmElement is")
             print(asmElement)
@@ -246,3 +275,4 @@ def ReadAll(asmList):
     return 0
 asmList = ReadCode()
 ReadAll(asmList)
+
