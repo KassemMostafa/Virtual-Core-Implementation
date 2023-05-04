@@ -124,7 +124,7 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
 }
 
 //checks if there's an overflow in case of ADD with carry
-int overflowCheck(uint64_t a, uint64_t b)  //error_Flag decide whether to throw an error or not
+void overflowCheck(uint64_t a, uint64_t b)  //error_Flag decide whether to throw an error or not
 {
     uint8_t msb_1;
     uint8_t msb_2;
@@ -132,19 +132,19 @@ int overflowCheck(uint64_t a, uint64_t b)  //error_Flag decide whether to throw 
 
 
     msb_1 = (a >> 56) & 0xff;
-    msb_2 = (b >> 56) & 0xff;
+    msb_2 = (b >> 56) & 0xff; 
     sum_msb = msb_1 + msb_2;
 
     if (sum_msb > 0xff) 
     {
         //printf("Ignored Carry on MSB");
         OVERFLOW = 1; //1 for overflow detected
-        return 1;
+        
     }
     else
     {
          OVERFLOW = 0; //no overflow
-         return 0;
+         
     }   
 }
 
@@ -215,6 +215,13 @@ void execute(struct instruction info)
         case 4: //ADC => test with https://onlinehextools.com/add-hex-numbers
             if (!IVPos)
             {
+                if (OVERFLOW)
+                {
+                    if (r[info.ope1] >= r[info.ope2])
+                        r[info.ope2] += 1;
+                    else
+                        r[info.ope1] += 1;
+                }  
                 overflowCheck(r[info.ope1],r[info.ope2]);
                 r[info.dest] = r[info.ope1] + r[info.ope2];
             }
@@ -222,11 +229,15 @@ void execute(struct instruction info)
             {
                 if (IVPos == 1)
                 {
+                    if (OVERFLOW)
+                        info.IV = info.IV +1;
                     overflowCheck(info.IV,r[info.ope2]);
                     r[info.dest] = info.IV + r[info.ope2];
                 }
                 else
                 {
+                    if (OVERFLOW)
+                        info.IV += 1;
                     overflowCheck(r[info.ope1],info.IV);
                     r[info.dest] = r[info.ope1] + info.IV;
                 }
@@ -246,12 +257,12 @@ void execute(struct instruction info)
             else
                 r[info.dest] = info.IV;
         case 9: //LSH
-            if (info.IV_Flag)
-                //r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
+            // if (info.IV_Flag)
+            //     r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
             break;
         case 10: //RSH
-            if (info.IV_Flag);
-               r[info.dest] = (int) floor(r[info.ope1] / pow(2, r[info.ope2]));
+            // if (info.IV_Flag);
+            //    r[info.dest] = (int) floor(r[info.ope1] / pow(2, r[info.ope2]));
     }
 }
 
@@ -319,6 +330,7 @@ void main(int argc, char *argv[]) {
     FILE *ptr;
     int PC =1;
     int i;
+    struct instruction info;
     
 
     // for (i =0; i<16;i++)
@@ -332,11 +344,12 @@ void main(int argc, char *argv[]) {
     // fclose(ptr);
     // free(buffer);
 
-    r[0] = 0xF000000000000000;
-    r[1] = 0x7fffffffffffffff;
+    r[0] = 0x24152dfb45da45df;
+    r[1] = 0xa521147fde45f45a;
+    r[2] = 0x45dcea451f2d45a4;
+    r[3] = 0xf5554ed4f4522365;
 
     
-    r[2] = r[0] + r[1];
     
     printf("sum = 0x%lx\n", r[2]);
     printf("%d",(int)floor(4.9));
@@ -357,5 +370,29 @@ void main(int argc, char *argv[]) {
     else{
         printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE)");
     }*/
+
+    ///// TEST AREA
+
+                if (OVERFLOW)
+                {
+                    if (r[1] >= r[3])
+                        r[3] += 1;
+                    else
+                        r[1] += 1;
+                }  
+                overflowCheck(r[1],r[3]);
+                r[4] = r[1] + r[3];
+
+                   if (OVERFLOW)
+                {
+                    if (r[0] >= r[2])
+                        r[2] += 1;
+                    else
+                        r[0] += 1;
+                }  
+                overflowCheck(r[0],r[2]);
+                r[5] = r[0] + r[2];
+                printf("sum = 0x%lx%lx\n", r[5],r[4]);
+
 
 }
