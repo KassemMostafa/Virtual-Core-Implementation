@@ -16,7 +16,7 @@ struct instruction{
 
 uint64_t r[16];
 int FLAGS[6] = {0,0,0,0,0,0}; // {BEQ, BNE, BLE, BGE, BL, BG}
-
+int OVERFLOW = 0;
 
 struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
@@ -123,11 +123,12 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
 }
 
 //checks if there's an overflow in case of ADD with carry
-int overflowCheck(uint64_t a, uint64_t b, int error_Flag)  //error_Flag decide whether to throw an error or not
+int overflowCheck(uint64_t a, uint64_t b)  //error_Flag decide whether to throw an error or not
 {
     uint8_t msb_1;
     uint8_t msb_2;
     uint16_t sum_msb;
+
 
     msb_1 = (a >> 56) & 0xff;
     msb_2 = (b >> 56) & 0xff;
@@ -136,17 +137,14 @@ int overflowCheck(uint64_t a, uint64_t b, int error_Flag)  //error_Flag decide w
     if (sum_msb > 0xff) 
     {
         //printf("Ignored Carry on MSB");
-        if (error_Flag)
-        {
-            printf("Error : Overflow Detected");
-            exit(EXIT_FAILURE);
-
-        }
-        else
-            return 1; //1 for overflow detected
+        OVERFLOW = 1; //1 for overflow detected
+        return 1;
     }
     else
-        return 0; //no overflow
+    {
+         OVERFLOW = 0; //no overflow
+         return 0;
+    }   
 }
 
 int IVCheck(struct instruction info) //compares IV with operand1 or 2 to know which is a register and which isn't
@@ -217,19 +215,19 @@ void execute(struct instruction info)
         case 4: //ADC => test with https://onlinehextools.com/add-hex-numbers
             if (!IVPos)
             {
-                if (!overflowCheck(r[info.ope1],r[info.ope2],1))
-                    r[info.dest] = r[info.ope1] + r[info.ope2];
+                overflowCheck(r[info.ope1],r[info.ope2]);
+                r[info.dest] = r[info.ope1] + r[info.ope2];
             }
             else
             {
                 if (IVPos == 1)
                 {
-                    if (!overflowCheck(info.IV,r[info.ope2],1))
+                    overflowCheck(info.IV,r[info.ope2]);
                     r[info.dest] = info.IV + r[info.ope2];
                 }
                 else
                 {
-                    if (!overflowCheck(r[info.ope1],info.IV,1))
+                    overflowCheck(r[info.ope1],info.IV);
                     r[info.dest] = r[info.ope1] + info.IV;
                 }
             }
