@@ -190,7 +190,7 @@ void execute(struct instruction info)
     int IVPos =  IVCheck(info);//var used to check which operand is the IV, has the same utility as info.immediate_Value_Flag if there's no immediate value
 
 
-
+    printf("info.opcode == %d\n", info.opCode);
     switch(info.opCode) {
         case 0: //AND
             if (!IVPos)
@@ -256,6 +256,8 @@ void execute(struct instruction info)
                 r[info.dest] = r[info.ope2];
             else
                 r[info.dest] = info.IV;
+            printf("MOV instruction = 0x%lx\n",r[info.dest]);
+            break;
         case 9: //LSH
             // if (info.IV_Flag)
             //     r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
@@ -293,7 +295,7 @@ char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binai
         for (int i = 0; i < 4; ++i)
             printf("\n%x %d \n", buffer[i], i);
         info = decode(buffer);
-        
+        execute(info);
         bcc = buffer[0] & 0x10;
         printf("%x", bcc);
         if (bcc == 0x0) //no BCC
@@ -338,21 +340,21 @@ void main(int argc, char *argv[]) {
     //     r[i] = 0x0;
     // }
 
-    // printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
-    // ptr = fopen("binary.bin","rb");
-    // buffer = fetch(PC, ptr);
-    // fclose(ptr);
-    // free(buffer);
+    printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
+    ptr = fopen("binary.bin","rb");
+    buffer = fetch(PC, ptr);
+    fclose(ptr);
+    free(buffer);
 
-    r[0] = 0x24152dfb45da45df;
-    r[1] = 0xa521147fde45f45a;
-    r[2] = 0x45dcea451f2d45a4;
-    r[3] = 0xf5554ed4f4522365;
+    // r[0] = 0x24152dfb45da45df;
+    // r[1] = 0xa521147fde45f45a;
+    // r[2] = 0x45dcea451f2d45a4;
+    // r[3] = 0xf5554ed4f4522365;
 
     
     
-    printf("sum = 0x%lx\n", r[2]);
-    printf("%d",(int)floor(4.9));
+    // printf("sum = 0x%lx\n", r[2]);
+    // printf("%d",(int)floor(4.9));
     /*if (argc == 3){
         int r0 = 0x10;
         printf( "%x \n",r0);
@@ -371,28 +373,28 @@ void main(int argc, char *argv[]) {
         printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE)");
     }*/
 
-    ///// TEST AREA
+    ///// EXO2 TEST 
 
-                if (OVERFLOW)
-                {
-                    if (r[1] >= r[3])
-                        r[3] += 1;
-                    else
-                        r[1] += 1;
-                }  
-                overflowCheck(r[1],r[3]);
-                r[4] = r[1] + r[3];
+                // if (OVERFLOW)
+                // {
+                //     if (r[1] >= r[3])
+                //         r[3] += 1;
+                //     else
+                //         r[1] += 1;
+                // }  
+                // overflowCheck(r[1],r[3]);
+                // r[4] = r[1] + r[3];
 
-                   if (OVERFLOW)
-                {
-                    if (r[0] >= r[2])
-                        r[2] += 1;
-                    else
-                        r[0] += 1;
-                }  
-                overflowCheck(r[0],r[2]);
-                r[5] = r[0] + r[2];
-                printf("sum = 0x%lx%lx\n", r[5],r[4]);
+                //    if (OVERFLOW)
+                // {
+                //     if (r[0] >= r[2])
+                //         r[2] += 1;
+                //     else
+                //         r[0] += 1;
+                // }  
+                // overflowCheck(r[0],r[2]);
+                // r[5] = r[0] + r[2];
+                 printf("sum = 0x%lx%lx\n", r[5],r[4]);
 
 
 }
