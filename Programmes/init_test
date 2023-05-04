@@ -1,0 +1,82 @@
+ADD r0, 145
+LSH r0, 8
+ADD r0, 162
+LSH r0, 8
+ADD r0, 179
+LSH r0, 8
+ADD r0, 196
+LSH r0, 8
+ADD r0, 213
+LSH r0, 8
+ADD r0, 230
+LSH r0, 8
+ADD r0, 247
+LSH r0, 1
+ADD r0, 1
+ADD r4, 165
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+LSH r1, 8
+ADD r1, r4
+ADD r2, 174
+LSH r2, 8
+ADD r2, 244
+LSH r2, 8
+ADD r2, 93
+LSH r2, 8
+ADD r2, 116
+LSH r2, 8
+ADD r2, 90
+LSH r2, 8
+ADD r2, 255
+LSH r2, 8
+ADD r2, 88
+LSH r2, 8
+ADD r2, 79
+
+
+
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10100101 
