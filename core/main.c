@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <math.h>
 
 struct instruction{
     int BCC;
@@ -190,19 +191,18 @@ void execute(struct instruction info)
 
 
 
-    switch(info.opCode)
-    {
+    switch(info.opCode) {
         case 0: //AND
             if (!IVPos)
                 r[info.dest] = r[info.ope1] & r[info.ope2];
             else
-                r[info.dest] = r[info.dest] & info.IV;   
+                r[info.dest] = r[info.dest] & info.IV;
             break;
         case 1: //ORR
             if (!IVPos)
                 r[info.dest] = r[info.ope1] | r[info.ope2];
             else
-                r[info.dest] = r[info.dest] | info.IV;   
+                r[info.dest] = r[info.dest] | info.IV;
             break;
         case 3: //ADD //vide parce que EOR et ADD sont pareil
         case 6: //SUB vide pour les même raisons
@@ -210,7 +210,7 @@ void execute(struct instruction info)
             if (!IVPos)
                 r[info.dest] = r[info.ope1] ^ r[info.ope2];
             else
-                r[info.dest] = r[info.dest] ^ info.IV;   
+                r[info.dest] = r[info.dest] ^ info.IV;
             break;
         case 4: //ADC => test with https://onlinehextools.com/add-hex-numbers
             if (!IVPos)
@@ -238,14 +238,20 @@ void execute(struct instruction info)
             else
                 checkFlag(r[info.dest], info.IV);
             break;
+
+
         case 8: //MOV
             if (info.IV_Flag)
                 r[info.dest] = r[info.ope2];
             else
                 r[info.dest] = info.IV;
         case 9: //LSH
-            
-        
+            if (info.IV_Flag)
+                //r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
+            break;
+        case 10: //RSH
+            if (info.IV_Flag);
+               r[info.dest] = (int) floor(r[info.ope1] / pow(2, r[info.ope2]));
     }
 }
 
@@ -333,7 +339,7 @@ void main(int argc, char *argv[]) {
     r[2] = r[0] + r[1];
     
     printf("sum = 0x%lx\n", r[2]);
-    
+    printf("%d",(int)floor(4.9));
     /*if (argc == 3){
         int r0 = 0x10;
         printf( "%x \n",r0);
