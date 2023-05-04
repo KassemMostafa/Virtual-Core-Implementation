@@ -18,6 +18,7 @@ struct instruction{
 uint64_t r[16];
 int FLAGS[6] = {0,0,0,0,0,0}; // {BEQ, BNE, BLE, BGE, BL, BG}
 int OVERFLOW = 0;
+int OVERFLOWLSH = 0;
 
 struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
@@ -148,6 +149,28 @@ void overflowCheck(uint64_t a, uint64_t b)  //error_Flag decide whether to throw
     }   
 }
 
+void overflowlshcheck(u_int64_t a, u_int64_t b)
+{
+    int i = 0;
+    u_int64_t c = (a << b);
+    u_int64_t d = (c >> b);
+   if ( d != a )
+   {
+       while(a != 0)
+       {
+           a = a >> 1;
+           i+=1 ;
+       }
+
+   }
+   OVERFLOWLSH = i;
+   //printf("%" PRIu64 "\n", c);
+   //printf("%" PRIu64 "\n", d);
+   //printf("%d\n", OVERFLOWLSH);
+}
+
+
+
 int IVCheck(struct instruction info) //compares IV with operand1 or 2 to know which is a register and which isn't
 {
 
@@ -259,12 +282,47 @@ void execute(struct instruction info)
             printf("MOV instruction = 0x%lx\n",r[info.dest]);
             break;
         case 9: //LSH
-            // if (info.IV_Flag)
-            //     r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
+            if (OVERFLOWLSH == 0)
+            {
+                if (info.IV_Flag)
+                {
+                    r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
+                }
+
+                else
+                {
+                    r[info.dest] = r[info.ope1] * pow(2, r[info.IV]);
+                }
+
+            }
+            else
+            {
+
+                if (info.IV_Flag)
+                {
+                    int over = 63-r[info.ope2];
+                    r[15] = r[info.ope1] >> over;
+                    r[info.dest] = r[info.ope1] * pow(2, r[info.ope2]);
+                }
+
+                else
+                {
+                    int over = 63-r[info.IV];
+                    r[15] = r[info.ope1] >> over;
+                    r[info.dest] = r[info.ope1] * pow(2, r[info.IV]);
+                }
+
+            }
+
+
             break;
         case 10: //RSH
-            // if (info.IV_Flag);
-            //    r[info.dest] = (int) floor(r[info.ope1] / pow(2, r[info.ope2]));
+             if (info.IV_Flag)
+                r[info.dest] = (int) floor(r[info.ope1] / pow(2, r[info.ope2]));
+             else
+                 r[info.dest] = (int) floor(r[info.ope1] / pow(2, r[info.IV]));
+
+            break;
     }
 }
 
@@ -339,7 +397,11 @@ void main(int argc, char *argv[]) {
     // {
     //     r[i] = 0x0;
     // }
+    u_int64_t a = pow(2,50);
+    printf("%" PRIu64 "\n", a);
+    u_int64_t b = 14;
 
+    overflowlshcheck(a,b);
     printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
     ptr = fopen("binary.bin","rb");
     buffer = fetch(PC, ptr);
