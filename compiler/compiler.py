@@ -82,9 +82,9 @@ def ReadCode(): # if no BCC returns [IV, dest, ope2, ope1, opcode, IV Flag, 0 (c
             asmListElement[6] = 0
             
         asmListElement[0] = int(asmListElement[0])
-        asmListElement[1] = int(asmListElement[1],base=16)
-        asmListElement[2] = int(asmListElement[2],base=16)
-        asmListElement[3] = int(asmListElement[3],base=16)
+        asmListElement[1] = int(asmListElement[1])
+        asmListElement[2] = int(asmListElement[2])
+        asmListElement[3] = int(asmListElement[3])
         asmListElement[5] = int(asmListElement[5])
         print("Before append")
         print(asmList)
