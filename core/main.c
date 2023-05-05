@@ -21,8 +21,15 @@ int FLAGS[6] = {0,0,0,0,0,0}; // {BEQ, BNE, BLE, BGE, BL, BG}
 int OVERFLOW = 0;
 int OVERFLOWLSH = 0;
 
+void printRegister()
+{
+    for (int j = 0; j <= 15; j++) {
+        printf("r%d = %lx\n",j,r[j]);
+    }
 
-void setregister()
+}
+
+void setRegister()
 {
 
         FILE *file = fopen("fichier.txt", "r");
@@ -41,12 +48,10 @@ void setregister()
 
     }
     fclose(file);
+    printRegister();
+}
 
-    for (int j = 0; j <= 15; j++) {
-            printf("%lx\n", r[j]);
-        }
 
-    }
 
 struct instruction initInfo()
 {
@@ -445,15 +450,8 @@ void main(int argc, char *argv[]) {
     FILE *ptr;
     int i;
     struct instruction info;
-    
 
-    // for (i =0; i<16;i++)
-    // {
-    //     r[i] = 0x0;
-    // }
-
-
-    setregister();
+    setRegister();
     printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
     ptr = fopen("binary.bin","rb");
     buffer = fetch(ptr);
