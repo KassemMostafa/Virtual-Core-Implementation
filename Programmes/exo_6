@@ -1,0 +1,8 @@
+MOV r0, 0xa
+MOV r1, 0xb
+CMP r0, r1
+BG 3
+MOV r2, 0xfe
+B 2
+MOV r2, 0xaf
+MOV r3, r2

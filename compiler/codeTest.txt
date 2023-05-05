@@ -1,3 +1,5 @@
 MOV r1, 2
-MOV r1, r2
-BG -2
+MOV r5, r2
+B -3
+MOV r1, 4
+MOV r5, 3
