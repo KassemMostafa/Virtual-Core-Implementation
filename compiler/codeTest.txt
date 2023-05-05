@@ -1,8 +1,1 @@
-AND r1, r2
-ORR r1, 2
-EOR r1, r3
-MOV r1, r2
-ADD r1, r2, r3
-ADD r1, 2, r3
-ADD r1, r3, 2
-CMP 1, r1
+ADD r1, r2, 3

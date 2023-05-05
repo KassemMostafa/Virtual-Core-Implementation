@@ -149,11 +149,11 @@ void overflowCheck(uint64_t a, uint64_t b)  //error_Flag decide whether to throw
     }   
 }
 
-void overflowlshcheck(u_int64_t a, u_int64_t b)
+void overflowlshcheck(uint64_t a, uint64_t b)
 {
     int i = 0;
-    u_int64_t c = (a << b);
-    u_int64_t d = (c >> b);
+    uint64_t c = (a << b);
+    uint64_t d = (c >> b);
    if ( d != a )
    {
        while(a != 0)
@@ -397,9 +397,9 @@ void main(int argc, char *argv[]) {
     // {
     //     r[i] = 0x0;
     // }
-    u_int64_t a = pow(2,50);
+    uint64_t a = pow(2,50);
     printf("%" PRIu64 "\n", a);
-    u_int64_t b = 14;
+    uint64_t b = 14;
 
     overflowlshcheck(a,b);
     printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
@@ -457,6 +457,8 @@ void main(int argc, char *argv[]) {
                 // overflowCheck(r[0],r[2]);
                 // r[5] = r[0] + r[2];
                  printf("sum = 0x%lx%lx\n", r[5],r[4]);
+
+                
 
 
 }
