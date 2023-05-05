@@ -334,9 +334,7 @@ void execute(struct instruction info)
     }
 }
 
-uint8_t* fetch(FILE *ptr) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode
-//Info à trouver/calculer dans fetch => BCC, offset, bloc d'instruction (sans decoder) et PC
-
+uint8_t* fetch(FILE *ptr) //BCC géré dans fetch with PC, lecture du binaire et gestion du PC selon si l'instruction est un BCC ou pas => SI BCC => calcul du nouveau BC et lecture de la bonne ligne selon l'offset, SI pas de BCC, envoi de toute la ligne à decode//Info à trouver/calculer dans fetch => BCC, offset, bloc d'instruction (sans decoder) et PC
 {
     size_t buffer_size = 4;
     uint8_t *buffer = malloc(buffer_size);
