@@ -3,9 +3,6 @@ import struct
 import os
 import re
 
-#TODO => detect hex and then convert to int
-# for this => only ope1 and ope2 can be hex, so take esmElement[2 et 3] and see if they're hex
-
 def DecodeOperand(operands):
     
     if (len(operands) == 2):
@@ -70,16 +67,20 @@ def ParseBCC(line): #Detects if there's a BCC or not, if it does, returns 0 (as 
 
 def CheckHex(hex):
     hex_regex = r"^(0x|0X)[0-9a-fA-F]{1,16}$"
+    if (type(hex) == int):
+        return int(hex) 
+    if hex.isdigit():
+        print("in integer")
+        return int(hex)
     match = re.search(hex_regex, hex)
     if match:
         print("Valid\n")
         return int(hex,0)
     else:
+        print(hex)
+        print("\n")
         print("unvalid\n")
-        if hex.isdigit():
-            return int(hex)
-        else:
-            raise Exception("Erreur de Compilation : Invalid IV")
+        raise Exception("Erreur de Compilation : Invalid IV")
 
 def ReadCode(): # if no BCC returns [IV, dest, ope2, ope1, opcode, IV Flag, 0 (cause no BCC)], if BCC returns [offset, 0,0,0,0,1,BCC]
 #limitation : IV is written as ope1 or ope2, need to compare ope2 and ope1 value to IV for operation with 

@@ -20,9 +20,11 @@ int FLAGS[6] = {0,0,0,0,0,0}; // {BEQ, BNE, BLE, BGE, BL, BG}
 int OVERFLOW = 0;
 int OVERFLOWLSH = 0;
 
-struct instruction decode(char *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
+struct instruction decode(uint8_t *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
     struct instruction info;
+    uint32_t tempOffset = 0;
+    int i;
     
 
     
@@ -82,17 +84,17 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
                 //0x00 => IV buffer[3]
 
     
-    printf("Value of a: Hex: %X, Decimal: %d \n",buffer[0],buffer[0]);
-    printf("Value of a: Hex: %X, Decimal: %d \n",buffer[1],buffer[1]);
-    printf("Value of a: Hex: %X, Decimal: %d \n",buffer[2],buffer[2]);
-    printf("Value of a: Hex: %X, Decimal: %d \n",buffer[3],buffer[3]);
+    printf("Value of a: Hex: 0x%X, Decimal: %d \n",buffer[0],buffer[0]);
+    printf("Value of a: Hex: 0x%X, Decimal: %d \n",buffer[1],buffer[1]);
+    printf("Value of a: Hex: 0x%X, Decimal: %d \n",buffer[2],buffer[2]);
+    printf("Value of a: Hex: 0x%X, Decimal: %d \n",buffer[3],buffer[3]);
     //buffer[0] = 0x80; // B offset with positive offset 
-    
-    if (buffer[0] == 0x00 || buffer[0] == 0x01) //no BCC , if à supprimer
+    //MOV r1, 2 => buffer[0] = 0x08
+    if (buffer[0] == 0x00 || buffer[0] == 0x08) //no BCC , if à supprimer
     {
-        printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x01);
+        printf("Buffer 0 => BCC|IV flag: %x|%x \n",buffer[0] & 0x10, buffer[0] & 0x08);
         info.BCC = 0;
-        info.IV_Flag = buffer[0] & 0x01;
+        info.IV_Flag = buffer[0] & 0x08;
         printf("Buffer 11 => opcode|ope1: %x, in decimal \n", buffer[1] >> 4 & 0xF);
         printf("Buffer 1 => opcode|ope1: %x|%x \n",buffer[1] >>4 & 0xF, buffer[1] & 0x0F);
         info.opCode = buffer[1] >> 4 & 0xF;
@@ -107,7 +109,28 @@ struct instruction decode(char *buffer) //Prend une instruction non PCC, découp
     }
     else
     {
-        printf("BCC");
+        printf("Buffer0? %x\n", buffer[0]);
+        info.BCC = buffer[0] >> 4 & 0xF;
+        printf("buffer[0] = 0x%x\n", buffer[0]);
+        printf("BCC is %d\n",info.BCC);
+        info.offset = 1;
+        if ((buffer[0] & 0xF) == 8)
+        {
+            info.offset = -1;
+            printf("negative offset here\n");
+        }
+            
+            
+        tempOffset |= buffer[0] & 0b00000111;
+        for (i = 1; i < 4; i++ )
+        {
+            tempOffset <<=8;
+            tempOffset |= buffer[i];
+        }
+        printf("offset without sign is %d \n", tempOffset);
+        info.offset = tempOffset * info.offset;
+        printf("offset is %d\n",info.offset);
+        
     }
     //Rappel bit shifting
     // A = 60 => 0011 1100
@@ -331,7 +354,9 @@ char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binai
 
 {
     //TODO => handle multiple instructions
-    char *buffer;
+    size_t buffer_size = 4;
+    uint8_t *buffer = malloc(buffer_size);
+    size_t numBytes = 0;
     //FILE *ptr;
     char bcc;
     struct instruction info;
@@ -344,8 +369,9 @@ char* fetch(int PC, FILE *ptr) //BCC géré dans fetch with PC, lecture du binai
     printf("file length : %ld \n",filelen); //3 lines was to know the malloc size => //file len = number of bytes, 1 line of code = 4 bytes, line number = (filelen/PC)/4
     
     rewind(ptr); //called only at the beginning 
-    buffer = (char *)malloc(4 * sizeof(char));
-    while (fread(buffer, 4 , 1, ptr) == 1) //read until there's nothing left to read
+    buffer = malloc(buffer_size);
+    while (numBytes = fread(buffer, sizeof(uint8_t) , buffer_size, ptr) == buffer_size) //read until there's nothing left to read
+    //Buffersize = 4 => 32/4 => 8 => sizet is in bytes
     {
         printf("here");
         
