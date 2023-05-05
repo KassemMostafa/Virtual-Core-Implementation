@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <math.h>
+#include <string.h>
 
 struct instruction{
     int BCC;
@@ -20,6 +21,33 @@ int FLAGS[6] = {0,0,0,0,0,0}; // {BEQ, BNE, BLE, BGE, BL, BG}
 int OVERFLOW = 0;
 int OVERFLOWLSH = 0;
 
+
+void setregister()
+{
+
+        FILE *file = fopen("fichier.txt", "r");
+        if (file == NULL) {
+            printf("Erreur : impossible d'ouvrir le fichier.\n");
+            exit(EXIT_FAILURE);
+        }
+
+
+    for (int i = 0; i<=15; i++)
+    {
+        char temp[30];
+        fgets(temp, 30, file);
+        r[i] = (int)strtol(temp, NULL, 0);
+
+
+    }
+    fclose(file);
+
+    for (int j = 0; j <= 15; j++) {
+            printf("%lx\n", r[j]);
+        }
+
+    }
+
 struct instruction initInfo()
 {
     struct instruction info;
@@ -33,6 +61,8 @@ struct instruction initInfo()
     info.ope2 = 0;
     return info;
 }
+
+
 struct instruction decode(uint8_t *buffer) //Prend une instruction non PCC, découpe l'instruction et met chaque demi octet dans la bonne case de la structure instruction et puis appel execute
 {
     struct instruction info = initInfo();
@@ -421,11 +451,9 @@ void main(int argc, char *argv[]) {
     // {
     //     r[i] = 0x0;
     // }
-    uint64_t a = pow(2,50);
-    printf("%" PRIu64 "\n", a);
-    uint64_t b = 14;
 
-    overflowlshcheck(a,b);
+
+    setregister();
     printf("Usage exemple : BIN_NAME <CODE> <STATE> (VERBOSE) \n");
     ptr = fopen("binary.bin","rb");
     buffer = fetch(ptr);
